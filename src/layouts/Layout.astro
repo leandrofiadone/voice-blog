@@ -1,4 +1,6 @@
 ---
+import {ViewTransitions} from "astro:transitions"
+
 export interface Props {
   title: string
 }
@@ -14,10 +16,160 @@ const {title} = Astro.props
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <title>{title}</title>
+    <ViewTransitions />
   </head>
   <body class="bg-gray-50 text-gray-900">
-    <main class="max-w-4xl mx-auto px-4 py-8">
+    <!-- Header con navegación -->
+    <header
+      class="bg-white shadow-sm border-b transition-all duration-300"
+      transition:persist>
+      <nav class="max-w-4xl mx-auto px-4 py-4">
+        <div class="flex items-center justify-between">
+          <a
+            href="/"
+            class="text-2xl font-bold text-gray-800 hover:text-blue-600 transition-colors"
+            transition:name="logo">
+            🎤 VoiceBlog
+          </a>
+          <div class="flex items-center gap-4">
+            <a
+              href="/"
+              class="text-gray-600 hover:text-blue-600 transition-colors px-3 py-2 rounded-md hover:bg-blue-50">
+              Inicio
+            </a>
+            <a
+              href="/about"
+              class="text-gray-600 hover:text-blue-600 transition-colors px-3 py-2 rounded-md hover:bg-blue-50">
+              Acerca
+            </a>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <main class="min-h-screen">
       <slot />
     </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-8 mt-12" transition:persist>
+      <div class="max-w-4xl mx-auto px-4 text-center">
+        <p>&copy; 2025 VoiceBlog. Creado con ❤️ y Astro</p>
+      </div>
+    </footer>
+
+    <style>
+      /* Transiciones personalizadas */
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes fadeInScale {
+        from {
+          opacity: 0;
+          transform: scale(0.95);
+        }
+        to {
+          opacity: 1;
+          transform: scale(1);
+        }
+      }
+
+      /* Aplicar animaciones a elementos específicos */
+      [data-animate="fade-up"] {
+        animation: fadeInUp 0.6s ease-out;
+      }
+
+      [data-animate="fade-scale"] {
+        animation: fadeInScale 0.4s ease-out;
+      }
+
+      /* Transición personalizada para el contenido principal */
+      main {
+        view-transition-name: main-content;
+      }
+
+      /* Hover effects mejorados */
+      .hover-lift {
+        transition: all 0.3s ease;
+      }
+
+      .hover-lift:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+      }
+
+      /* Loading spinner para las transiciones */
+      .loading-spinner {
+        width: 20px;
+        height: 20px;
+        border: 2px solid #f3f3f3;
+        border-top: 2px solid #3498db;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+    </style>
+
+    <script>
+      // Mejorar las transiciones con JavaScript
+      document.addEventListener("astro:page-load", () => {
+        // Animar elementos cuando la página se carga
+        const animatedElements = document.querySelectorAll("[data-animate]")
+        animatedElements.forEach((el, index) => {
+          (el as HTMLElement).style.animationDelay = `${index * 0.1}s`
+        })
+
+        // Agregar efecto de carga suave
+        document.body.style.opacity = "0"
+        document.body.style.transform = "translateY(20px)"
+
+        requestAnimationFrame(() => {
+          document.body.style.transition = "all 0.5s ease-out"
+          document.body.style.opacity = "1"
+          document.body.style.transform = "translateY(0)"
+        })
+      })
+
+      // Efecto de carga entre páginas
+      document.addEventListener("astro:before-preparation", () => {
+        const loader = document.createElement("div")
+        loader.className =
+          "fixed top-0 left-0 w-full h-1 bg-blue-500 z-50 transition-all duration-300"
+        loader.style.width = "0%"
+        loader.id = "page-loader"
+        document.body.appendChild(loader)
+
+        // Animar la barra de carga
+        setTimeout(() => {
+          loader.style.width = "70%"
+        }, 100)
+      })
+
+      document.addEventListener("astro:after-swap", () => {
+        const loader = document.getElementById("page-loader")
+        if (loader) {
+          loader.style.width = "100%"
+          setTimeout(() => {
+            loader.remove()
+          }, 300)
+        }
+      })
+    </script>
   </body>
 </html>
