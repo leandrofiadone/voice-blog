@@ -1,0 +1,57 @@
+---
+import Layout from "../layouts/Layout.astro"
+
+export async function getStaticPaths() {
+  const posts = await getCollection("posts")
+  return posts.map((post) => ({
+    params: {slug: post.slug},
+    props: {post}
+  }))
+}
+
+const {post} = Astro.props
+const {Content} = await post.render()
+---
+
+<Layout title={post.data.title}>
+  <article
+    class="max-w-3xl mx-auto py-12 px-4 sm:px-6 lg:px-8 prose prose-lg max-w-none prose-img:max-w-none">
+    <header class="mb-8">
+      <h1 class="text-3xl sm:text-4xl font-bold text-gray-800">
+        {post.data.title}
+      </h1>
+      <div class="flex items-center text-sm text-gray-500 mt-2">
+        <svg
+          class="w-4 h-4 mr-1"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+          xmlns="http://www.w3.org/2000/svg">
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+          ></path>
+        </svg>
+        <span
+          >{
+            new Date(post.data.date).toLocaleDateString("es-ES", {
+              year: "numeric",
+              month: "long",
+              day: "numeric"
+            })
+          }</span
+        >
+      </div>
+    </header>
+    <div class="prose-lg">
+      <Content />
+    </div>
+    <a
+      href="/"
+      class="mt-6 inline-block bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 transition-colors"
+      aria-label="Volver a la página principal">Volver</a
+    >
+  </article>
+</Layout>
